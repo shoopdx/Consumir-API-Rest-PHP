@@ -18,8 +18,8 @@ Ejemplos
 Authentication
 ===================
 ```php
-$URL	  = 'http://ejemploapi.com/';
-$rs 	  = API::Authentication($URL.'authentication','usuario','clave');
+$URL	= 'http://ejemploapi.com/';
+$rs 	= API::Authentication($URL.'authentication','usuario','clave');
 $array  = API::JSON_TO_ARRAY($rs);
 $token 	= $array['data']['APIKEY'];
 ```
@@ -52,7 +52,7 @@ $parametros = array(
 	'idempresa' => 1
 );
 $rs = API::POST($URL.'proyectos',$token,$parametros);
-$rs 	= API::JSON_TO_ARRAY($rs);
+$rs = API::JSON_TO_ARRAY($rs);
 ```
 
 DELETE
@@ -71,7 +71,7 @@ $parametros = array(
 	'activo'	  => 1
 );
 $rs = API::PUT($URL.'proyectos/1',$token,$parametros);
-$rs 	= API::JSON_TO_ARRAY($rs);
+$rs = API::JSON_TO_ARRAY($rs);
 ```
 
 PATCH
@@ -81,6 +81,6 @@ $parametros = array(
 	'codigo'	=> 'codqwdqwdqwdqwdigo11',
 	'activo'	=> 0
 );
-$rs 	= API::PATCH($URL.'proyectos/1',$token,$parametros);
-$rs 	= API::JSON_TO_ARRAY($rs);
+$rs = API::PATCH($URL.'proyectos/1',$token,$parametros);
+$rs = API::JSON_TO_ARRAY($rs);
 ```

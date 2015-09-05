@@ -1,7 +1,7 @@
 # API REST - PHP
 Clase para consumir API Rest en PHP
 
-Métodos soportados
+Métodos HTTP soportados
 	- GET
 	- POST
 	- DELETE

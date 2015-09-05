@@ -1,7 +1,7 @@
 # API REST - PHP
 Clase para consumir API Rest en PHP
 
-Metodo soportados
+Métodos soportados
 	- GET
 	- POST
 	- DELETE
@@ -66,8 +66,8 @@ PUT
 ===================
 ```php
 $parametros = array(
-	'proyecto' 	=> 'prueba1qqwdqwdqwd',
-	'codigo'	=> 'codigo11',
+	'proyecto' 	=> 'Proyecto Ejemplo',
+	'codigo'	=> 'Código 1',
 	'activo'	=> 1
 );
 $rs = API::PUT($URL.'proyectos/1',$token,$parametros);
@@ -78,7 +78,7 @@ PATCH
 ===================
 ```php
 $parametros = array(
-	'codigo'	=> 'codqwdqwdqwdqwdigo11',
+	'codigo'	=> 'Código 3',
 	'activo'	=> 0
 );
 $rs = API::PATCH($URL.'proyectos/1',$token,$parametros);

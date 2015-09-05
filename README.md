@@ -49,7 +49,7 @@ $parametros = array(
 	'proyecto' 	=> 'prueba1',
 	'codigo'	=> 'codigo1',
 	'activo'	=> 1,
-	'idempresa' => 1
+	'idempresa' 	=> 1
 );
 $rs = API::POST($URL.'proyectos',$token,$parametros);
 $rs = API::JSON_TO_ARRAY($rs);
@@ -67,8 +67,8 @@ PUT
 ```php
 $parametros = array(
 	'proyecto' 	=> 'prueba1qqwdqwdqwd',
-	'codigo'	  => 'codigo11',
-	'activo'	  => 1
+	'codigo'	=> 'codigo11',
+	'activo'	=> 1
 );
 $rs = API::PUT($URL.'proyectos/1',$token,$parametros);
 $rs = API::JSON_TO_ARRAY($rs);

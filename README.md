@@ -38,16 +38,16 @@ Estructura JSON Authenticacion
 }
 ```
 
-Auth2 Grant Type Password Credentials
+OAuth2 Grant Type Password Credentials
 ===================
 ```php
 $URL	= 'http://ejemploapi.com/token';
 
 $params = API::OAuthParams('1'); // 1 - Grant Type Password Credentials
-$params['client_id'] = $msatws->getClient_id();
-$params['client_secret'] = '';
-$params['username'] = $cliente->getUsername();
-$params['password'] = $cliente->getPassword();
+$params['client_id'] = 'CLIENT ID AQUI!!!';
+$params['client_secret'] = 'CLIENT SECRET AQUI!!!';
+$params['username'] = 'USERNAME AQUI!!!';
+$params['password'] = 'PASSWORD AQUI!!!';
 $params['scope'] = '';
 
 $api = new API();
@@ -56,15 +56,15 @@ $array = API::JSON_TO_ARRAY($rs);
 $token 	= $array['token_type'].' '.$array['access_token'];
 ```
 
-Auth2 Grant Type Client Credentials
+OAuth2 Grant Type Client Credentials
 ===================
 ```php
 $URL	= 'http://ejemploapi.com/token';
 
 $params = API::OAuthParams('2'); // 2 - Grant Type Client Credentials
-$params['client_id'] = $msatws->getClient_id();
-$params['client_secret'] = '';
-$params['scope'] = '';
+$params['client_id'] = 'CLIENT ID AQUI!!!';
+$params['client_secret'] = 'CLIENT SECRET AQUI!!!';
+$params['scope'] = 'SCOPE AQUI!!!';
 
 $api = new API();
 $rs = $api->OAuth2($URL, $params); 

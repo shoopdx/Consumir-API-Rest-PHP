@@ -11,6 +11,8 @@ Métodos HTTP soportados
 Extras
 	- Conversor JSON a ARRAY
 	- Metodo de autentificación básica
+	- OAuthParams parametros para la autenticación OAuth 2
+	- OAuth2 atenticación de acceso OAuth 2
 	
 Ejemplos
 ===================
@@ -19,9 +21,10 @@ Authentication
 ===================
 ```php
 $URL	= 'http://ejemploapi.com/';
-$rs 	= API::Authentication($URL.'authentication','usuario','clave');
+$api	= new API();
+$rs 	= $api->Authentication($URL.'authentication','usuario','clave');
 $array  = API::JSON_TO_ARRAY($rs);
-$token 	= $array['data']['APIKEY'];
+$token 	= 'Bearer '.$array['data']['APIKEY'];
 ```
 
 Estructura JSON Authenticacion
@@ -35,10 +38,49 @@ Estructura JSON Authenticacion
 }
 ```
 
+Auth2 Grant Type Password Credentials
+===================
+```php
+$URL	= 'http://ejemploapi.com/token';
+
+$params = API::OAuthParams('1'); // 1 - Grant Type Password Credentials
+$params['client_id'] = $msatws->getClient_id();
+$params['client_secret'] = '';
+$params['username'] = $cliente->getUsername();
+$params['password'] = $cliente->getPassword();
+$params['scope'] = '';
+
+$api = new API();
+$rs = $api->OAuth2($URL, $params); 
+$array = API::JSON_TO_ARRAY($rs);
+$token 	= $array['token_type'].' '.$array['access_token'];
+```
+
+Auth2 Grant Type Client Credentials
+===================
+```php
+$URL	= 'http://ejemploapi.com/token';
+
+$params = API::OAuthParams('2'); // 2 - Grant Type Client Credentials
+$params['client_id'] = $msatws->getClient_id();
+$params['client_secret'] = '';
+$params['scope'] = '';
+
+$api = new API();
+$rs = $api->OAuth2($URL, $params); 
+$array = API::JSON_TO_ARRAY($rs);
+$token 	= $array['token_type'].' '.$array['access_token'];
+```
+
+
+
 GET
 ===================
 ```php
-$rs 	= API::GET($URL.'proyectos/1',$token);
+$URL	= 'http://ejemploapi.com/';
+
+$api	= new API();
+$rs 	= $api->GET($URL.'proyectos/1',$token);
 $array  = API::JSON_TO_ARRAY($rs);
 ```
 
@@ -51,14 +93,16 @@ $parametros = array(
 	'activo'	=> 1,
 	'idempresa' 	=> 1
 );
-$rs = API::POST($URL.'proyectos',$token,$parametros);
+$api = new API();
+$rs = $api->POST($URL.'proyectos',$token,$parametros);
 $rs = API::JSON_TO_ARRAY($rs);
 ```
 
 DELETE
 ===================
 ```php
-$rs 	= API::DELETE($URL.'proyectos/1',$token);
+$api	= new API();
+$rs 	= $api->DELETE($URL.'proyectos/1',$token);
 $rs 	= API::JSON_TO_ARRAY($rs);
 ```
 
@@ -70,7 +114,8 @@ $parametros = array(
 	'codigo'	=> 'Código 1',
 	'activo'	=> 1
 );
-$rs = API::PUT($URL.'proyectos/1',$token,$parametros);
+$api = new API();
+$rs = $api->PUT($URL.'proyectos/1',$token,$parametros);
 $rs = API::JSON_TO_ARRAY($rs);
 ```
 
@@ -81,6 +126,7 @@ $parametros = array(
 	'codigo'	=> 'Código 3',
 	'activo'	=> 0
 );
-$rs = API::PATCH($URL.'proyectos/1',$token,$parametros);
+$api = new API();
+$rs = $api->PATCH($URL.'proyectos/1',$token,$parametros);
 $rs = API::JSON_TO_ARRAY($rs);
 ```

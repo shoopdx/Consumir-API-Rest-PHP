@@ -15,10 +15,21 @@
  *  	- Conversor JSON
  *
  * @author     	Diego Valladares <dvdeveloper.com>
- * @version 	1.0
+ * 
+ * Extras 2
+ * 	- OAuthParams parametros para la autenticación OAuth 2
+ *  - OAuth2 atenticación de acceso OAuth 2
+ *
+ * @author     	acetorod
+ * 
+ * @version 	2.0
  */
 class API
 {
+	private $statusCode;
+	private $time;
+	private $curl_errno;
+	private $curl_error;
 
 	/**
 	 * autenticación de acceso básica (Basic Auth)
@@ -29,7 +40,7 @@ class API
 	 * @param string $password clave
 	 * @return JSON
 	 */
-	static function Authentication($URL, $usuario, $password)
+	public function Authentication($URL, $usuario, $password)
 	{
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $URL);
@@ -37,6 +48,11 @@ class API
 		curl_setopt($ch, CURLOPT_HTTPAUTH, CURLAUTH_BASIC);
 		curl_setopt($ch, CURLOPT_USERPWD, "$usuario:$password");
 		$result = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $result;
 	}
@@ -46,7 +62,7 @@ class API
 	 * @param string $grant_type especifica el tipo de autenticación: 1 - Password Credentials, 2 - Client Credentials, 3 - Authorization Credentials
 	 * @return ARRAY 
 	 */
-	static function OAuthParams($grant_type='1')
+	static function OAuthParams($grant_type = '1')
 	{
 		$options = array();
 		switch ($grant_type) {
@@ -62,11 +78,11 @@ class API
 			case '2': //Client Credentials
 				$options['grant_type'] = 'client_credentials';
 				$options['client_id'] = '';
-				$options['client_secret'] = '';				
+				$options['client_secret'] = '';
 				$options['scope'] = '';
 				break;
 
-			case '3'://Authorization Credentials
+			case '3': //Authorization Credentials
 				$options['grant_type'] = 'authorization_code';
 				$options['client_id'] = '';
 				$options['client_secret'] = '';
@@ -75,7 +91,7 @@ class API
 				$options['scope'] = '';
 				break;
 
-			default://Password Credentials por defecto
+			default: //Password Credentials por defecto
 				$options['grant_type'] = 'password';
 				$options['client_id'] = '';
 				$options['client_secret'] = '';
@@ -95,7 +111,7 @@ class API
 	 * @param array $options parámetros para autenticar según el grant type (ver función OAuthParams)	 
 	 * @return JSON
 	 */
-	static function OAuth2($TokenURL, $options)
+	function OAuth2($TokenURL, $options)
 	{
 		$datapost = '';
 		foreach ($options as $key => $value) {
@@ -107,7 +123,13 @@ class API
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $datapost);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		$result = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $result;
 	}
@@ -118,17 +140,21 @@ class API
 	 *
 	 * @param string $URL URL recurso, ejemplo: http://website.com/recurso
 	 * @param string $TOKEN token de autenticación
-	 * @param array $ARRAY parámetros a envíar
+	 * @param array|string $PARAMS parámetros a envíar
 	 * @return JSON
 	 */
-	static function POST($URL, $TOKEN, $ARRAY)
+	public function POST($URL, $TOKEN, $PARAMS)
 	{
 		$datapost = '';
-		foreach ($ARRAY as $key => $value) {
-			$datapost .= $key . "=" . $value . "&";
+		if (is_array($PARAMS)) {
+			foreach ($PARAMS as $key => $value) {
+				$datapost .= $key . "=" . $value . "&";
+			}
+		} else {
+			$datapost = $PARAMS;
 		}
 
-		$headers 	= array('Authorization: Bearer ' . $TOKEN);
+		$headers 	= array('Authorization: ' . $TOKEN, 'Content-Type: application/json');
 		$ch 		= curl_init();
 		curl_setopt($ch, CURLOPT_URL, $URL);
 		curl_setopt($ch, CURLOPT_POST, 1);
@@ -138,6 +164,11 @@ class API
 		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $response;
 	}
@@ -150,15 +181,20 @@ class API
 	 * @param string $TOKEN token de autenticación
 	 * @return JSON
 	 */
-	static function GET($URL, $TOKEN)
+	public function GET($URL, $TOKEN)
 	{
-		$headers 	= array('Authorization: Bearer ' . $TOKEN);
+		$headers 	= array('Authorization: ' . $TOKEN, 'Content-Type: application/json');
 		$ch 		= curl_init();
 		curl_setopt($ch, CURLOPT_URL, $URL);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $response;
 	}
@@ -171,9 +207,9 @@ class API
 	 * @param string $TOKEN token de autenticación
 	 * @return JSON
 	 */
-	static function DELETE($URL, $TOKEN)
+	public function DELETE($URL, $TOKEN)
 	{
-		$headers 	= array('Authorization: Bearer ' . $TOKEN);
+		$headers 	= array('Authorization: ' . $TOKEN, 'Content-Type: application/json');
 		$ch 		= curl_init();
 
 		curl_setopt($ch, CURLOPT_URL, $URL);
@@ -182,6 +218,11 @@ class API
 		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $response;
 	}
@@ -192,17 +233,21 @@ class API
 	 *
 	 * @param string $URL URL recurso, ejemplo: http://website.com/recurso/id
 	 * @param string $TOKEN token de autenticación
-	 * @param array $ARRAY parámetros a envíar
+	 * @param array|string $PARAMS parámetros a envíar
 	 * @return JSON
 	 */
-	static function PUT($URL, $TOKEN, $ARRAY)
+	public function PUT($URL, $TOKEN, $PARAMS)
 	{
 		$datapost = '';
-		foreach ($ARRAY as $key => $value) {
-			$datapost .= $key . "=" . $value . "&";
+		if (is_array($PARAMS)) {
+			foreach ($PARAMS as $key => $value) {
+				$datapost .= $key . "=" . $value . "&";
+			}
+		} else {
+			$datapost = $PARAMS;
 		}
 
-		$headers 	= array('Authorization: Bearer ' . $TOKEN);
+		$headers 	= array('Authorization: ' . $TOKEN, 'Content-Type: application/json');
 		$ch 		= curl_init();
 		curl_setopt($ch, CURLOPT_URL, $URL);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
@@ -213,6 +258,11 @@ class API
 		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $response;
 	}
@@ -223,17 +273,21 @@ class API
 	 *
 	 * @param string $URL URL recurso, ejemplo: http://website.com/recurso/id
 	 * @param string $TOKEN token de autenticación
-	 * @param array $ARRAY parametros parámetros a envíar
+	 * @param array|string $PARAMS parametros parámetros a envíar
 	 * @return JSON
 	 */
-	static function PATCH($URL, $TOKEN, $ARRAY)
+	public function PATCH($URL, $TOKEN, $PARAMS)
 	{
 		$datapost = '';
-		foreach ($ARRAY as $key => $value) {
-			$datapost .= $key . "=" . $value . "&";
+		if (is_array($PARAMS)) {
+			foreach ($PARAMS as $key => $value) {
+				$datapost .= $key . "=" . $value . "&";
+			}
+		} else {
+			$datapost = $PARAMS;
 		}
 
-		$headers 	= array('Authorization: Bearer ' . $TOKEN);
+		$headers 	= array('Authorization: ' . $TOKEN, 'Content-Type: application/json');
 		$ch 		= curl_init();
 		curl_setopt($ch, CURLOPT_URL, $URL);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PATCH");
@@ -244,6 +298,11 @@ class API
 		curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		$response = curl_exec($ch);
+		$this->statusCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$total_time = curl_getinfo($ch, CURLINFO_TOTAL_TIME);
+		$this->time = round($total_time * 1000);
+		$this->curl_errno = curl_errno($ch);
+		$this->curl_error = curl_error($ch);
 		curl_close($ch);
 		return $response;
 	}
@@ -257,5 +316,52 @@ class API
 	static function JSON_TO_ARRAY($json)
 	{
 		return json_decode($json, true);
+	}
+
+	/**
+	 * Convertir JSON a un OBJECT
+	 *
+	 * @param json $json Formato OBJECT
+	 * @return OBJECT
+	 */
+	static function JSON_TO_OBJECT($json)
+	{
+		return json_decode($json);
+	}
+
+	/**
+	 * Retorna el código de estatus de la última conexión
+	 * @return int statusCode
+	 */
+	public function getStatuscode()
+	{
+		return $this->statusCode;
+	}
+
+	/**
+	 * Retorna el tiempo en segundos de la última conexión
+	 * @return int time
+	 */
+	public function getTime()
+	{
+		return $this->time;
+	}
+
+	/**
+	 * Retorna un array con la información del error y su código
+	 * @return ARRAY
+	 */
+	public function getError()
+	{
+		return array('error' => $this->curl_error, 'errorno' => $this->curl_errno);
+	}
+
+	/**
+	 * Retorna un booleano para saber si hay o no un error en la última conexión
+	 * @return boolean
+	 */
+	public function isError()
+	{
+		return trim($this->curl_error) == '' ? false : true;
 	}
 }
